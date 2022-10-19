@@ -1,1 +1,4 @@
-<p>main-page works!</p>
+<div *ngIf="!isUserIn.value">
+  <app-login></app-login>
+  <button (click)="navigateToRegistration()">Нет аккаунта?</button>
+</div>
