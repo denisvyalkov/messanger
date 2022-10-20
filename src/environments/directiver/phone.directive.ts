@@ -6,7 +6,7 @@ import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
 })
 export class PhoneMaskDirective {
   @Input() control: AbstractControl | FormControl | undefined | null;
-  mask = ' (XXX) XXX-XX-XX';
+  mask = '(XXX)XXX-XX-XX';
 
   constructor() {}
 
@@ -16,36 +16,30 @@ export class PhoneMaskDirective {
   }
 
   onInputChange(event: any) {
-    console.log(event)
     let backspace = !event.data;
     let value: any = this.control!.value.replace(/\D/g, '');
-    if (backspace && value.length <= 6) {
-      value = value.substring(0, value.length - 1);
-    }
-    if (value.length === 1) {
-      value = ' (' + value + this.mask.slice(3, this.mask.length);
-      this.control?.setValue(value);
-      console.log(value);
+    let fullValue = this.control!.value;
+    console.log(fullValue);
+    if (!backspace && value.length === 1) {
+      this.control?.setValue('(' + value + 'XX)XXX-XX-XX');
+      event.target.setSelectionRange(2, 2);
       return;
-    } else if (value.length <= 3) {
-      value = value.replace(/^(\d{0,3})/, '$1');
-    } else if (value.length <= 6) {
-      value = value.replace(/^(\d{0,3})(\d{0,3})/, '$1$2');
-    } else if (value.length <= 10) {
-      value = value.replace(/^(\d{0,3})(\d{0,3})(\d{0,4})/, '$1$2$3');
-    } else {
-      value = value.substring(0, 10);
-      value = value.replace(/^(\d{0,3})(\d{0,3})(\d{0,4})/, '$1$2$3');
     }
-    let finalMask = this.mask;
-    let finalValue = value;
-
-
-    for (let i = 0; i < finalValue.length; i++) {
-      value = finalMask.replace('X', finalValue.charAt(i));
-      finalMask = value;
+    let caretPos = event.target.selectionStart;
+    if (
+      fullValue.charAt(caretPos) === '(' ||
+      fullValue.charAt(caretPos) === ')' ||
+      fullValue.charAt(caretPos) === '-'
+    ) {
+      caretPos++;
     }
 
-    this.control?.setValue(value);
+    let leftPart = fullValue.slice(0, caretPos);
+    let rightPart = fullValue.slice(caretPos);
+
+    fullValue = leftPart + rightPart.replace('X', '');
+
+    this.control?.setValue(fullValue);
+    event.target.setSelectionRange(caretPos, caretPos);
   }
 }
