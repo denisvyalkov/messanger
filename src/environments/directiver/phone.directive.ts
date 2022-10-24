@@ -15,17 +15,39 @@ export class PhoneMaskDirective {
     this.onInputChange(data);
   }
 
-  onInputChange(event: any) {
+  onInputChange(event: InputEvent) {
     let backspace = !event.data;
-    let value: any = this.control!.value.replace(/\D/g, '');
+    let value: string = this.control!.value.replace(/\D/g, '');
     let fullValue = this.control!.value;
-    console.log(fullValue);
+
     if (!backspace && value.length === 1) {
       this.control?.setValue('(' + value + 'XX)XXX-XX-XX');
-      event.target.setSelectionRange(2, 2);
+      (event.target as HTMLInputElement).setSelectionRange(2, 2);
       return;
     }
-    let caretPos = event.target.selectionStart;
+    let caretPos: number =
+      (event.target as HTMLInputElement).selectionStart || 0;
+
+    let leftPart: string = fullValue.slice(0, caretPos - 1);
+    let rightPart: string = fullValue.slice(caretPos);
+
+    if (backspace) {
+      let countOfMask: number =
+        this.mask.length - (leftPart.length + rightPart.length);
+      let result = leftPart;
+      if (countOfMask) {
+        for (let i = leftPart.length; i < leftPart.length + countOfMask; i++) {
+          result += this.mask.charAt(i);
+        }
+      }
+      result += rightPart;
+      console.log(result);
+      this.control?.setValue(result);
+      return;
+    }
+
+    fullValue = leftPart + rightPart.replace('X', event.data as string);
+
     if (
       fullValue.charAt(caretPos) === '(' ||
       fullValue.charAt(caretPos) === ')' ||
@@ -34,12 +56,7 @@ export class PhoneMaskDirective {
       caretPos++;
     }
 
-    let leftPart = fullValue.slice(0, caretPos);
-    let rightPart = fullValue.slice(caretPos);
-
-    fullValue = leftPart + rightPart.replace('X', '');
-
     this.control?.setValue(fullValue);
-    event.target.setSelectionRange(caretPos, caretPos);
+    (event.target as HTMLInputElement).setSelectionRange(caretPos, caretPos);
   }
 }
