@@ -16,37 +16,58 @@ export class PhoneMaskDirective {
   }
 
   onInputChange(event: InputEvent) {
-    let backspace = !event.data;
-    let value: string = this.control!.value.replace(/\D/g, '');
+    let backspace = event.data === null; //is backspace pressed
+
+    const value: string = this.control!.value.replace(/\D/g, ''); // pure value without specs symbols
     let fullValue = this.control!.value;
 
     if (!backspace && value.length === 1) {
+      //when user 1st time input the value we should set the mask into input
       this.control?.setValue('(' + value + 'XX)XXX-XX-XX');
       (event.target as HTMLInputElement).setSelectionRange(2, 2);
       return;
     }
+
     let caretPos: number =
       (event.target as HTMLInputElement).selectionStart || 0;
 
-    let leftPart: string = fullValue.slice(0, caretPos - 1);
-    let rightPart: string = fullValue.slice(caretPos);
+    const leftPart: string = fullValue.slice(0, caretPos - 1); //left part of input value without new data
+    let rightPart: string = fullValue.slice(caretPos); //right part of input value
 
-    if (backspace) {
-      let countOfMask: number =
-        this.mask.length - (leftPart.length + rightPart.length);
-      let result = leftPart;
-      if (countOfMask) {
-        for (let i = leftPart.length; i < leftPart.length + countOfMask; i++) {
-          result += this.mask.charAt(i);
-        }
-      }
-      result += rightPart;
-      console.log(result);
-      this.control?.setValue(result);
+    //non-numeric input
+    if (
+      !event ||
+      event.data === undefined ||
+      (event.data !== null && isNaN(+event.data))
+    ) {
+      this.control?.setValue(leftPart + rightPart);
+      (event.target as HTMLInputElement).setSelectionRange(
+        caretPos - 1,
+        caretPos - 1
+      );
       return;
     }
 
-    fullValue = leftPart + rightPart.replace('X', event.data as string);
+    const countOfMask: number =
+      this.mask.length - (leftPart.length + rightPart.length); // the lengtgh of missed text
+
+    if (countOfMask) {
+      fullValue = leftPart;
+
+      for (let i = leftPart.length; i < leftPart.length + countOfMask; i++) {
+        fullValue += this.mask.charAt(i);
+      }
+      if (!backspace) {
+        rightPart = event.data + rightPart.replace('X', '');
+        console.log(rightPart);
+      }
+      fullValue += rightPart;
+      this.control?.setValue(fullValue);
+      (event.target as HTMLInputElement).setSelectionRange(caretPos, caretPos);
+      return;
+    }
+
+    fullValue = leftPart + rightPart.replace('X', event.data as string); //simple input
 
     if (
       fullValue.charAt(caretPos) === '(' ||
