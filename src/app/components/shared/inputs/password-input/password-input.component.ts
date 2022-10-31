@@ -1,10 +1,13 @@
-import { Component, HostListener, Input, OnInit } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
+import { Component, Input, OnInit } from '@angular/core';
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { PhoneMaskDirective } from 'src/environments/directiver/phone.directive';
 
 @Component({
+  standalone: true,
   selector: 'app-password-input',
   templateUrl: './password-input.component.html',
-  styleUrls: ['./password-input.component.scss'],
+  styleUrls: ['./password-input.component.scss', '../input.scss'],
+  imports: [ReactiveFormsModule, PhoneMaskDirective]
 })
 export class PasswordInputComponent implements OnInit {
   @Input() form!: FormGroup;
@@ -13,10 +16,6 @@ export class PasswordInputComponent implements OnInit {
   canSeePassword = false;
 
   constructor() {}
-  setter () {
-    this.form.controls['password'].setValue('1234');
-    console.log(this.form)
-  }
 
   ngOnInit(): void {
     this.control = this.form.controls[this.controlName];

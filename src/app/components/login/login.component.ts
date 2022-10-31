@@ -1,15 +1,31 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { LoginService } from 'src/app/services/login.service';
 
+interface LoginForm {
+  phone: FormControl<string | null>;
+  password: FormControl<string | null>;
+}
 @Component({
-  selector: 'app-login',
+  selector: 'app-login-page',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrls: ['./login.component.scss', '../shared/inputs/input.scss'],
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent {
+  loginForm: FormGroup<LoginForm>;
+  showPassword = false;
+  touched = {
+    password: false,
+    phone: false,
+  };
 
-  constructor() { }
-
-  ngOnInit(): void {
+  constructor(public lgsvc: LoginService) {
+    this.loginForm = new FormGroup({
+      phone: new FormControl('', [
+        Validators.required,
+        (control) => this.lgsvc.phoneValidator(control),
+      ]),
+      password: new FormControl(''),
+    });
   }
-
 }

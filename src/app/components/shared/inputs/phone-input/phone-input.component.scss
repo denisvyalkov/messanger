@@ -1,0 +1,19 @@
+.btn__send-sms {
+  background-color: #fa6400;
+  border-radius: 0 8px 8px 0;
+  color: white;
+  &:hover {
+    background-color: #ff7b24;
+  }
+}
+
+.option__codes {
+  border: none;
+  outline: none;
+  background-color: #fff;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding: 0 10px;
+  text-align: center;
+}

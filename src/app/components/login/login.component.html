@@ -1,5 +1,16 @@
-<div class="login-wrapper">login component</div>
-
-<button class="btn btn-primary" routerLink="../registration">
-  Have no account?
-</button>
+<div class="login-wrapper">
+  <h2 class="page__name">Login page</h2>
+  <form [formGroup]="loginForm" class="form-group">
+    <app-phone-input
+      [form]="loginForm"
+      [controlName]="'phone'"
+      (isCodeSended)="lgsvc.sendSms($event)"
+    ></app-phone-input>
+    <app-password-input
+      [form]="loginForm"
+      [controlName]="'password'"
+    ></app-password-input>
+    <button class="btn btn-success">Registration</button>
+  </form>
+  <a routerLink="../registration"> Need account? </a>
+</div>

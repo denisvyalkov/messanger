@@ -1,9 +1,18 @@
-<div>
-  <h2>Registration page</h2>
+<div class="register-wrapper">
+  <h2 class="page__name">Registration page</h2>
   <form [formGroup]="registerForm" class="form-group">
-    <app-password-input  [form]="registerForm" [controlName]="'password'" ></app-password-input>
+    <app-phone-input
+      (click)="touched.phone = true"
+      [form]="registerForm"
+      [controlName]="'phone'"
+      (isCodeSended)="sendSms($event)"
+    ></app-phone-input>
+    <app-password-input
+      (click)="touched.password = true"
+      [form]="registerForm"
+      [controlName]="'password'"
+    ></app-password-input>
+    <button class="btn btn-success">Registration</button>
   </form>
+  <a routerLink="../login"> Alredy have account? </a>
 </div>
-<button routerLink="../login" class="btn btn-primary">
-  Alredy have account?
-</button>

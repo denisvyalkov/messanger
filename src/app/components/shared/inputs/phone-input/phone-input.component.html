@@ -1,1 +1,20 @@
-<p>phone-input works!</p>
+<label for="phone-wrapper">Enter phone number</label>
+<div class="wrapper" [class.has-error]="control && control.invalid && touched">
+  <div class="input-wrapper" [formGroup]="form">
+    <select class="option__codes">
+      <option *ngFor="let code of usersvc.countryCodes">{{ code }}</option>
+    </select>
+    <input
+      type="text"
+      [formControlName]="controlName"
+      phone
+      [control]="control"
+      autofill="false"
+      class="input-wrapper__text"
+      (click)="touched = true"
+    />
+  </div>
+  <button *ngIf="control.valid" class="btn__send-sms" (click)="sendSms()">
+    Send sms
+  </button>
+</div>

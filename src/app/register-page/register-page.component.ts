@@ -1,5 +1,6 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { LoginService } from '../services/login.service';
 export interface RegisterForm {
   phone: FormControl<string | null>;
   login: FormControl<string | null>;
@@ -8,35 +9,31 @@ export interface RegisterForm {
 @Component({
   selector: 'app-register-page',
   templateUrl: './register-page.component.html',
-  styleUrls: ['./register-page.component.scss'],
+  styleUrls: [
+    './register-page.component.scss',
+    '../components/shared/inputs/input.scss',
+  ],
 })
-
 export class RegisterPageComponent {
   registerForm: FormGroup<RegisterForm>;
-  @ViewChild('phone') el!: ElementRef;
-  mask = [
-    '(',
-    /[1-9]/,
-    /\d/,
-    /\d/,
-    ')',
-    ' ',
-    /\d/,
-    /\d/,
-    /\d/,
-    '-',
-    /\d/,
-    /\d/,
-    /\d/,
-    /\d/,
-  ];
+  touched = {
+    password: false,
+    phone: false,
+  };
   showPassword = false;
 
-  constructor() {
+  constructor(public lgsvc: LoginService) {
     this.registerForm = new FormGroup({
-      phone: new FormControl('', [Validators.required]),
+      phone: new FormControl('', [
+        Validators.required,
+        (control) => this.lgsvc.phoneValidator(control),
+      ]),
       login: new FormControl(''),
       password: new FormControl(''),
     });
+  }
+
+  sendSms(e: Event) {
+    console.log('send sms');
   }
 }

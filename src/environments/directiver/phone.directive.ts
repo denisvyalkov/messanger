@@ -1,23 +1,25 @@
 import { Directive, HostListener, Input } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
+import { AbstractControl, FormControl } from '@angular/forms';
 
 @Directive({
+  standalone: true,
   selector: '[phone]',
 })
 export class PhoneMaskDirective {
   @Input() control: AbstractControl | FormControl | undefined | null;
   mask = '(XXX)XXX-XX-XX';
 
-  constructor() {}
+  constructor() {
+    this.control?.setValue(this.mask);
+  }
 
   @HostListener('input', ['$event'])
-  onInput(data: any) {
+  onInput(data: InputEvent) {
     this.onInputChange(data);
   }
 
   onInputChange(event: InputEvent) {
-    let backspace = event.data === null; //is backspace pressed
-
+    const backspace = event.data === null; //is backspace pressed
     const value: string = this.control!.value.replace(/\D/g, ''); // pure value without specs symbols
     let fullValue = this.control!.value;
 
@@ -59,7 +61,6 @@ export class PhoneMaskDirective {
       }
       if (!backspace) {
         rightPart = event.data + rightPart.replace('X', '');
-        console.log(rightPart);
       }
       fullValue += rightPart;
       this.control?.setValue(fullValue);
