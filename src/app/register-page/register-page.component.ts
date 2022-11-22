@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { LoginService } from '../services/login.service';
+import { LoginService, User } from '../services/login.service';
 export interface RegisterForm {
   phone: FormControl<string | null>;
   login: FormControl<string | null>;
@@ -35,5 +35,17 @@ export class RegisterPageComponent {
 
   sendSms(e: Event) {
     console.log('send sms');
+  }
+
+  registration(): void {
+    const user: User = {
+      phone: '7' + this.registerForm.value.phone?.replace(/[^0-9]/g, ''),
+      password: this.registerForm.value.password || '',
+    };
+    this.setNewUser(user);
+  }
+
+  setNewUser(user: User): void {
+    this.lgsvc.sendWsMessage('REG', user);
   }
 }

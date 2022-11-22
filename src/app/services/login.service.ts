@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { AbstractControl, FormControl } from '@angular/forms';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 
-interface User {
-  login: string;
+export interface User {
+  login?: string;
+  phone?: string;
   password: string;
 }
 
@@ -16,18 +17,18 @@ export class LoginService {
   #onUserOutObs = new Subject();
   onUserOut = this.#onUserOutObs.asObservable();
   #loginSubscription = new Subscription();
-  socket?: any;
+  socket: WebSocket = new WebSocket('ws://localhost:9000');
 
   user: User | null = null;
   isUserLogged = new BehaviorSubject<boolean>(false);
 
   constructor() {
+    console.log('login service!')
     this.#loginSubscription.add(
       this.#onUserInObs.subscribe((user: User) => {
         this.user = user;
         this.isUserLogged.next(true);
         console.log('logged in', user);
-        this.#setWsConnection();
       })
     );
     this.#loginSubscription.add(
@@ -37,6 +38,9 @@ export class LoginService {
         this.socket.close();
       })
     );
+    this.socket.onmessage = function (message: any) {
+      console.log('Message: %s', message.data);
+    };
   }
 
   login(userData: User) {
@@ -57,20 +61,7 @@ export class LoginService {
     } else return { error: 'error: incorrect input' };
   }
 
-  #setWsConnection(): void {
-    this.socket = new WebSocket('ws://localhost:9000');
-    this.socket.onmessage = function (message: any) {
-      console.log('Message: %s', message.data);
-    };
-  }
-
-  sendSms(a?: Event): void {
-    console.log('sms sended');
-  }
-
-  wsSendEcho(value: any) {
-    this.socket.send(
-      JSON.stringify({ action: 'ECHO', data: value.toString() })
-    );
+  sendWsMessage(type: string, data: any) {
+    this.socket.send(JSON.stringify({ action: type, data: data }));
   }
 }

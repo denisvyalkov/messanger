@@ -4,13 +4,12 @@
     <app-phone-input
       [form]="loginForm"
       [controlName]="'phone'"
-      (isCodeSended)="lgsvc.sendSms($event)"
     ></app-phone-input>
     <app-password-input
       [form]="loginForm"
       [controlName]="'password'"
     ></app-password-input>
-    <button class="btn btn-success">Registration</button>
+    <button class="btn btn-success" (click)="login()">Login</button>
   </form>
   <a routerLink="../registration"> Need account? </a>
 </div>
