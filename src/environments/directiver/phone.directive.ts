@@ -10,6 +10,7 @@ export class PhoneMaskDirective {
 
   /**default mask, need update for another symbols */
   mask = '(XXX)XXX-XX-XX';
+  prev = '';
 
   constructor() {
     this.control?.setValue(this.mask);
@@ -34,14 +35,20 @@ export class PhoneMaskDirective {
       }
       return;
     }
+    this.prev = this.control.value;
+    let caretPos: number =
+      (event.target as HTMLInputElement).selectionStart || 0;
+    let leftPart: string = this.control.value.slice(0, caretPos - 1);
+    let rightPart: string = this.control.value.slice(caretPos);
 
     if (event.data !== null) {
-      let caretPos: number =
-        (event.target as HTMLInputElement).selectionStart || 0;
-      const leftPart: string = this.control.value.slice(0, caretPos - 1);
-      let rightPart: string = this.control.value.slice(caretPos);
       this.control.setValue(leftPart + rightPart.replace('X', event.data));
       if (rightPart[0] !== 'X') caretPos++;
+      (event.target as HTMLInputElement).setSelectionRange(caretPos, caretPos);
+    } else {
+      leftPart = this.control.value.slice(0, caretPos);
+      const value = leftPart + this.mask[leftPart.length] + rightPart;
+      this.control.setValue(value);
       (event.target as HTMLInputElement).setSelectionRange(caretPos, caretPos);
     }
   }
