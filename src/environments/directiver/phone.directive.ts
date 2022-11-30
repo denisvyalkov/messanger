@@ -7,6 +7,8 @@ import { AbstractControl, FormControl } from '@angular/forms';
 })
 export class PhoneMaskDirective {
   @Input() control: AbstractControl | FormControl | undefined | null;
+
+  /**default mask, need update for another symbols */
   mask = '(XXX)XXX-XX-XX';
 
   constructor() {
@@ -19,66 +21,28 @@ export class PhoneMaskDirective {
   }
 
   onInputChange(event: InputEvent) {
-    const backspace = event.data === null; //is backspace pressed
-    const value: string = this.control!.value.replace(/\D/g, ''); // pure value without specs symbols
-    let fullValue = this.control!.value;
+    if (!event || !this.control) return;
 
-    if (!backspace && value.length === 1) {
-      //when user 1st time input the value we should set the mask into input
-      this.control?.setValue('(' + value + 'XX)XXX-XX-XX');
-      (event.target as HTMLInputElement).setSelectionRange(2, 2);
+    /**1st input setter */
+    if (this.control && this.control.value.length < 2) {
+      if (event.data === null) {
+        this.control.setValue(this.mask);
+      } else {
+        let value = this.mask.replace('X', event.data);
+        this.control.setValue(value);
+        (event.target as HTMLInputElement).setSelectionRange(2, 2);
+      }
       return;
     }
 
-    let caretPos: number =
-      (event.target as HTMLInputElement).selectionStart || 0;
-
-    const leftPart: string = fullValue.slice(0, caretPos - 1); //left part of input value without new data
-    let rightPart: string = fullValue.slice(caretPos); //right part of input value
-
-    //non-numeric input
-    if (
-      !event ||
-      event.data === undefined ||
-      (event.data !== null && isNaN(+event.data))
-    ) {
-      this.control?.setValue(leftPart + rightPart);
-      (event.target as HTMLInputElement).setSelectionRange(
-        caretPos - 1,
-        caretPos - 1
-      );
-      return;
-    }
-
-    const countOfMask: number =
-      this.mask.length - (leftPart.length + rightPart.length); // the lengtgh of missed text
-
-    if (countOfMask) {
-      fullValue = leftPart;
-
-      for (let i = leftPart.length; i < leftPart.length + countOfMask; i++) {
-        fullValue += this.mask.charAt(i);
-      }
-      if (!backspace) {
-        rightPart = event.data + rightPart.replace('X', '');
-      }
-      fullValue += rightPart;
-      this.control?.setValue(fullValue);
+    if (event.data !== null) {
+      let caretPos: number =
+        (event.target as HTMLInputElement).selectionStart || 0;
+      const leftPart: string = this.control.value.slice(0, caretPos - 1);
+      let rightPart: string = this.control.value.slice(caretPos);
+      this.control.setValue(leftPart + rightPart.replace('X', event.data));
+      if (rightPart[0] !== 'X') caretPos++;
       (event.target as HTMLInputElement).setSelectionRange(caretPos, caretPos);
-      return;
     }
-
-    fullValue = leftPart + rightPart.replace('X', event.data as string); //simple input
-
-    if (
-      fullValue.charAt(caretPos) === '(' ||
-      fullValue.charAt(caretPos) === ')' ||
-      fullValue.charAt(caretPos) === '-'
-    ) {
-      caretPos++;
-    }
-
-    this.control?.setValue(fullValue);
-    (event.target as HTMLInputElement).setSelectionRange(caretPos, caretPos);
   }
 }
